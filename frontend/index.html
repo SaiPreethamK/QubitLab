@@ -1,0 +1,4159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>QubitLab — Interactive Quantum Algorithm Learning Platform</title>
+
+<style>
+:root{
+  --bg:#050d12;
+  --bg2:#08171d;
+  --panel:#0b1d24;
+  --panel2:#102a33;
+  --line:#21424c;
+  --cyan:#59e5ff;
+  --teal:#3bd5b6;
+  --gold:#f2ce70;
+  --text:#ecfbff;
+  --muted:#91adb5;
+  --danger:#ff7180;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%,#12343d 0,transparent 28%),
+    radial-gradient(circle at 85% 15%,#10273b 0,transparent 30%),
+    radial-gradient(circle at 50% 80%,#09252b 0,transparent 35%),
+    var(--bg);
+  overflow-x:hidden;
+}
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+#space{
+  position:fixed;
+  inset:0;
+  z-index:-5;
+  overflow:hidden;
+}
+
+.grid{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(rgba(89,229,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(89,229,255,.025) 1px,transparent 1px);
+  background-size:55px 55px;
+}
+
+.orbit{
+  position:absolute;
+  border:1px solid rgba(89,229,255,.15);
+  border-radius:50%;
+  animation:floatOrbit 18s ease-in-out infinite;
+}
+
+.orbit1{
+  width:500px;
+  height:500px;
+  right:-180px;
+  top:30px;
+}
+
+.orbit2{
+  width:280px;
+  height:280px;
+  left:-130px;
+  bottom:5%;
+  animation-delay:-7s;
+}
+
+.orbit3{
+  width:700px;
+  height:220px;
+  left:30%;
+  top:45%;
+  transform:rotate(-18deg);
+  animation-delay:-11s;
+}
+
+@keyframes floatOrbit{
+  50%{
+    transform:translateY(-22px) rotate(12deg);
+  }
+}
+
+.particle{
+  position:absolute;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 16px var(--cyan);
+  animation:particleMove 8s ease-in-out infinite;
+}
+
+.p1{left:12%;top:22%}
+.p2{left:74%;top:18%;animation-delay:-2s}
+.p3{left:54%;top:72%;animation-delay:-4s}
+.p4{left:87%;top:67%;animation-delay:-6s}
+.p5{left:29%;top:81%;animation-delay:-3s}
+.p6{left:43%;top:14%;animation-delay:-5s}
+
+@keyframes particleMove{
+  50%{
+    transform:translate(35px,-40px);
+    opacity:.3;
+  }
+}
+
+/* =========================================================
+   CURSOR
+========================================================= */
+
+#cursor{
+  position:fixed;
+  width:22px;
+  height:22px;
+  border:1px solid var(--cyan);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 16px rgba(89,229,255,.4);
+}
+
+#cursorDot{
+  position:fixed;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--cyan);
+  pointer-events:none;
+  z-index:10000;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 10px var(--cyan);
+}
+
+/* =========================================================
+   NAV
+========================================================= */
+
+nav{
+  position:sticky;
+  top:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  gap:25px;
+  padding:15px 5%;
+  background:rgba(5,13,18,.78);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(89,229,255,.12);
+}
+
+.logo{
+  margin-right:auto;
+  font-size:23px;
+  font-weight:900;
+  letter-spacing:-.5px;
+}
+
+.logo span{
+  color:var(--cyan);
+}
+
+nav a{
+  text-decoration:none;
+  color:var(--muted);
+  font-size:14px;
+  transition:.2s;
+}
+
+nav a:hover{
+  color:white;
+}
+
+/* =========================================================
+   GENERAL
+========================================================= */
+
+main{
+  max-width:1280px;
+  margin:auto;
+  padding:20px 22px 80px;
+}
+
+section{
+  margin-top:100px;
+}
+
+.section-title{
+  margin-bottom:25px;
+}
+
+.section-title h2{
+  font-size:35px;
+  margin:0 0 8px;
+}
+
+.section-title p{
+  color:var(--muted);
+  margin:0;
+}
+
+.panel{
+  background:
+    linear-gradient(
+      145deg,
+      rgba(13,39,47,.95),
+      rgba(6,19,25,.97)
+    );
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:0 20px 70px rgba(0,0,0,.22);
+}
+
+.tag{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:30px;
+  color:var(--cyan);
+  background:#10333d;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:1.5px;
+}
+
+.btn{
+  border:1px solid var(--line);
+  background:#102932;
+  color:white;
+  border-radius:10px;
+  padding:11px 16px;
+  cursor:pointer;
+  font-weight:700;
+  transition:.2s;
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+  border-color:var(--cyan);
+}
+
+.btn.primary{
+  border:none;
+  background:linear-gradient(135deg,#32cbb5,#318fbf);
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero{
+  min-height:600px;
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  align-items:center;
+  gap:40px;
+}
+
+.hero h1{
+  font-size:clamp(48px,7vw,84px);
+  line-height:.94;
+  margin:18px 0;
+  letter-spacing:-4px;
+}
+
+.hero h1 span{
+  color:var(--cyan);
+}
+
+.hero-description{
+  max-width:680px;
+  color:var(--muted);
+  line-height:1.8;
+  font-size:18px;
+}
+
+.hero-buttons{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:25px;
+}
+
+.hero-visual{
+  height:430px;
+  position:relative;
+  overflow:hidden;
+  padding:20px;
+}
+
+.hero-orbit{
+  position:absolute;
+  width:290px;
+  height:290px;
+  border:1px solid rgba(89,229,255,.45);
+  border-radius:50%;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%) rotateX(60deg);
+  box-shadow:
+    0 0 45px rgba(89,229,255,.1),
+    inset 0 0 45px rgba(89,229,255,.05);
+  animation:heroSpin 14s linear infinite;
+}
+
+.hero-orbit:before,
+.hero-orbit:after{
+  content:"";
+  position:absolute;
+  inset:30px;
+  border:1px dashed rgba(89,229,255,.25);
+  border-radius:50%;
+}
+
+.hero-orbit:after{
+  transform:rotate(90deg);
+}
+
+@keyframes heroSpin{
+  to{
+    transform:translate(-50%,-50%) rotateX(60deg) rotateZ(360deg);
+  }
+}
+
+.hero-core{
+  position:absolute;
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  background:
+    radial-gradient(circle at 35% 30%,#d8fbff,#52ddec 30%,#0a697d 65%,#04151b);
+  box-shadow:
+    0 0 35px rgba(89,229,255,.7),
+    0 0 90px rgba(89,229,255,.2);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:28px;
+  font-weight:900;
+}
+
+/* =========================================================
+   LEARNING
+========================================================= */
+
+.learn-layout{
+  display:grid;
+  grid-template-columns:245px 1fr;
+  gap:18px;
+}
+
+.topic-list{
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  align-self:start;
+}
+
+.topic-button{
+  background:#08171d;
+  border:1px solid transparent;
+  color:#aac1c7;
+  padding:11px 12px;
+  border-radius:9px;
+  text-align:left;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.topic-button:hover,
+.topic-button.active{
+  border-color:var(--cyan);
+  background:#102a32;
+  color:white;
+}
+
+.learning-content{
+  padding:27px;
+  min-height:480px;
+}
+
+.learning-content h3{
+  font-size:32px;
+  margin:13px 0 18px;
+}
+
+.learning-content p,
+.learning-content li{
+  color:#bfd2d7;
+  line-height:1.8;
+}
+
+.learning-content strong{
+  color:white;
+}
+
+.learning-content .formula{
+  background:#041217;
+  border:1px solid #1d3a42;
+  padding:16px;
+  border-radius:10px;
+  font-size:17px;
+  color:var(--cyan);
+  margin:18px 0;
+}
+
+.source-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:25px;
+}
+
+.source-buttons a{
+  text-decoration:none;
+}
+
+/* =========================================================
+   CIRCUIT LAB
+========================================================= */
+
+.circuit-layout{
+  display:grid;
+  grid-template-columns:210px 1fr;
+  gap:18px;
+}
+
+.gate-palette{
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  align-self:start;
+}
+
+.gate-palette h3{
+  margin-top:0;
+}
+
+.gate{
+  padding:12px;
+  text-align:center;
+  border:1px dashed #42707a;
+  border-radius:10px;
+  background:#081a21;
+  cursor:grab;
+  font-weight:900;
+  user-select:none;
+}
+
+.gate:hover{
+  border-color:var(--cyan);
+  background:#102c34;
+}
+
+.circuit-panel{
+  padding:20px;
+  overflow:hidden;
+}
+
+.circuit-scroll{
+  overflow-x:auto;
+}
+
+.circuit{
+  min-width:850px;
+  background:#061218;
+  border:1px solid #1c3841;
+  border-radius:14px;
+  overflow:hidden;
+}
+
+.circuit-header,
+.qrow{
+  display:grid;
+  grid-template-columns:75px repeat(8,1fr);
+}
+
+.circuit-header{
+  border-bottom:1px solid #1b343c;
+}
+
+.circuit-header div{
+  padding:9px;
+  text-align:center;
+  color:#64818a;
+  font-size:11px;
+}
+
+.qname{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:var(--cyan);
+  font-weight:900;
+  border-right:1px solid #1b343c;
+}
+
+.cell{
+  height:72px;
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  border-right:1px solid #132a31;
+}
+
+.cell:before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  height:1px;
+  background:#36535b;
+  z-index:0;
+}
+
+.cell.drop-target{
+  background:rgba(89,229,255,.09);
+}
+
+.placed-gate{
+  width:43px;
+  height:43px;
+  border-radius:8px;
+  border:1px solid #5b919c;
+  background:#173944;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2;
+  font-weight:900;
+  box-shadow:0 4px 15px rgba(0,0,0,.3);
+}
+
+/* REAL CNOT */
+
+.cnot-control{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#dffbff;
+  border:3px solid #4ddff7;
+  z-index:4;
+  box-shadow:0 0 12px rgba(89,229,255,.5);
+}
+
+.cnot-target{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  border:2px solid #59e5ff;
+  position:relative;
+  z-index:4;
+  background:#0a2028;
+}
+
+.cnot-target:before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:4px;
+  bottom:4px;
+  width:2px;
+  transform:translateX(-50%);
+  background:#59e5ff;
+}
+
+.cnot-target:after{
+  content:"";
+  position:absolute;
+  top:50%;
+  left:4px;
+  right:4px;
+  height:2px;
+  transform:translateY(-50%);
+  background:#59e5ff;
+}
+
+.cnot-line{
+  position:absolute;
+  width:2px;
+  height:72px;
+  top:0;
+  background:#59e5ff;
+  z-index:1;
+}
+
+.simulation-box{
+  margin-top:18px;
+  padding:18px;
+  background:#061217;
+  border:1px solid #1d3b44;
+  border-radius:13px;
+}
+
+.output-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:15px;
+}
+
+.output-qubit{
+  padding:14px;
+  background:#0d252d;
+  border:1px solid #21454e;
+  border-radius:10px;
+}
+
+.output-qubit span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:5px;
+}
+
+.output-qubit strong{
+  color:var(--cyan);
+  font-size:21px;
+}
+
+.final-state{
+  margin-top:15px;
+  padding:15px;
+  border-radius:10px;
+  background:#102b34;
+  color:var(--gold);
+  font-size:22px;
+  font-weight:900;
+  text-align:center;
+}
+
+.probability-title{
+  margin-top:22px;
+  color:var(--muted);
+}
+
+.probability-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:10px;
+}
+
+.prob-item{
+  padding:10px;
+  border:1px solid #1c3942;
+  border-radius:9px;
+  text-align:center;
+}
+
+.prob-item b{
+  display:block;
+  color:white;
+}
+
+.prob-item span{
+  color:var(--cyan);
+  font-size:12px;
+}
+
+/* =========================================================
+   ALGORITHMS
+========================================================= */
+
+.algorithm-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+
+.algorithm-card{
+  padding:20px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.algorithm-card:hover{
+  transform:translateY(-3px);
+  border-color:#4d818b;
+}
+
+.algorithm-card h3{
+  margin:12px 0 8px;
+}
+
+.algorithm-card p{
+  color:var(--muted);
+  line-height:1.6;
+  margin:0;
+}
+
+.algorithm-detail{
+  display:none;
+  padding:25px;
+  margin-top:18px;
+}
+
+.algorithm-detail h2{
+  font-size:30px;
+}
+
+.algorithm-detail p{
+  color:#bfd2d7;
+  line-height:1.7;
+}
+
+pre{
+  overflow:auto;
+  background:#031015;
+  border:1px solid #1a3740;
+  border-radius:12px;
+  padding:18px;
+  color:#c9f7ff;
+  line-height:1.6;
+  font-size:13px;
+}
+
+/* =========================================================
+   BLOCH SPHERE
+========================================================= */
+
+.bloch-layout{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:18px;
+}
+
+.bloch-panel{
+  padding:10px;
+}
+
+#blochCanvas{
+  width:100%;
+  height:500px;
+  display:block;
+  border-radius:15px;
+}
+
+.bloch-controls{
+  padding:25px;
+}
+
+.bloch-controls p{
+  color:var(--muted);
+  line-height:1.7;
+}
+
+.slider{
+  width:100%;
+  accent-color:var(--cyan);
+}
+
+.state-values{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:20px;
+}
+
+.state-value{
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.state-value strong{
+  display:block;
+  color:white;
+  margin-top:5px;
+}
+
+.state-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:20px;
+}
+
+/* =========================================================
+   TUTOR
+========================================================= */
+
+.tutor-layout{
+  display:grid;
+  grid-template-columns:230px 1fr;
+  gap:18px;
+}
+
+.tutor-topic-list{
+  padding:14px;
+}
+
+.tutor-topic-list button{
+  width:100%;
+  text-align:left;
+  padding:10px;
+  margin-bottom:6px;
+  border-radius:8px;
+  border:1px solid transparent;
+  background:#08181f;
+  color:#abc3c9;
+  cursor:pointer;
+}
+
+.tutor-topic-list button:hover{
+  border-color:var(--cyan);
+  color:white;
+}
+
+.chat-panel{
+  padding:18px;
+  height:510px;
+  display:flex;
+  flex-direction:column;
+}
+
+.chat-messages{
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  padding:5px 8px 15px;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+.chat-message{
+  max-width:78%;
+  padding:11px 14px;
+  border-radius:13px;
+  line-height:1.55;
+  white-space:pre-wrap;
+}
+
+.chat-message.bot{
+  background:#102a32;
+  align-self:flex-start;
+  border-bottom-left-radius:4px;
+}
+
+.chat-message.user{
+  background:#155260;
+  align-self:flex-end;
+  border-bottom-right-radius:4px;
+}
+
+.chat-input{
+  display:flex;
+  gap:8px;
+  border-top:1px solid #1b3941;
+  padding-top:12px;
+}
+
+.chat-input input{
+  flex:1;
+  min-width:0;
+  background:#061217;
+  border:1px solid #21414a;
+  color:white;
+  border-radius:10px;
+  padding:12px;
+  outline:none;
+}
+
+.chat-input input:focus{
+  border-color:var(--cyan);
+}
+
+/* =========================================================
+   QUIZ ONLY
+========================================================= */
+
+.quiz{
+  padding:22px;
+}
+
+.quiz-question{
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  margin-bottom:13px;
+}
+
+.quiz-question p{
+  margin-top:0;
+  font-weight:700;
+}
+
+.quiz-option{
+  display:block;
+  padding:8px;
+  color:#b8cdd2;
+}
+
+.quiz-result{
+  display:inline-block;
+  margin-left:12px;
+  color:var(--gold);
+  font-weight:900;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer{
+  text-align:center;
+  padding:35px;
+  color:var(--muted);
+  border-top:1px solid #17333b;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:900px){
+
+  nav a{
+    display:none;
+  }
+
+  .hero,
+  .learn-layout,
+  .circuit-layout,
+  .bloch-layout,
+  .tutor-layout{
+    grid-template-columns:1fr;
+  }
+
+  .hero{
+    padding-top:30px;
+  }
+
+}
+
+@media(max-width:600px){
+
+  .hero h1{
+    font-size:54px;
+  }
+
+  .algorithm-grid{
+    grid-template-columns:1fr;
+  }
+
+  .state-values{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .probability-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  #cursor,
+  #cursorDot{
+    display:none;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- ========================================================
+     BACKGROUND
+========================================================= -->
+
+<div id="space">
+
+  <div class="grid"></div>
+
+  <div class="orbit orbit1"></div>
+  <div class="orbit orbit2"></div>
+  <div class="orbit orbit3"></div>
+
+  <div class="particle p1"></div>
+  <div class="particle p2"></div>
+  <div class="particle p3"></div>
+  <div class="particle p4"></div>
+  <div class="particle p5"></div>
+  <div class="particle p6"></div>
+
+</div>
+
+<div id="cursor"></div>
+<div id="cursorDot"></div>
+
+
+<!-- ========================================================
+     NAVIGATION
+========================================================= -->
+
+<nav>
+
+  <div class="logo">
+    Qubit<span>Lab</span>
+  </div>
+
+  <a href="#learn">Learn</a>
+  <a href="#circuit-section">Circuit Lab</a>
+  <a href="#algorithms">Algorithms</a>
+  <a href="#bloch-section">Bloch Sphere</a>
+  <a href="#tutor">AI Tutor</a>
+  <a href="#assessment">Quiz</a>
+
+</nav>
+
+
+<main>
+
+
+<!-- ========================================================
+     HERO
+========================================================= -->
+
+<section class="hero">
+
+  <div>
+
+    <div class="tag">
+      QUANTUM COMPUTING • LEARN • BUILD • EXPLORE
+    </div>
+
+    <h1>
+      Make quantum<br>
+      <span>click.</span>
+    </h1>
+
+    <p class="hero-description">
+
+      An interactive quantum algorithm learning
+      platform for students, researchers and
+      professionals.
+
+      Learn concepts visually, build quantum
+      circuits, explore quantum states and
+      understand major quantum algorithms
+      through interactive examples.
+
+    </p>
+
+    <div class="hero-buttons">
+
+      <button
+        class="btn primary"
+        onclick="goTo('learn')">
+        Start Learning
+      </button>
+
+      <button
+        class="btn"
+        onclick="goTo('circuit-section')">
+        Open Circuit Lab
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel hero-visual">
+
+    <div class="hero-orbit"></div>
+
+    <div class="hero-core">
+      |0⟩
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     LEARNING
+========================================================= -->
+
+<section id="learn">
+
+  <div class="section-title">
+
+    <h2>
+      Learn Quantum Computing
+    </h2>
+
+    <p>
+      Explore concepts interactively and learn
+      at your own pace.
+    </p>
+
+  </div>
+
+
+  <div class="learn-layout">
+
+
+    <div
+      class="panel topic-list"
+      id="topicList">
+    </div>
+
+
+    <div
+      class="panel learning-content"
+      id="learningContent">
+    </div>
+
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     CIRCUIT LAB
+========================================================= -->
+
+<section id="circuit-section">
+
+  <div class="section-title">
+
+    <h2>
+      Quantum Circuit Lab
+    </h2>
+
+    <p>
+      Drag a gate onto q0 or q1 and simulate the
+      resulting quantum state.
+    </p>
+
+  </div>
+
+
+  <div class="circuit-layout">
+
+
+    <!-- PALETTE -->
+
+    <div class="panel gate-palette">
+
+      <h3>
+        Gates
+      </h3>
+
+      <div
+        class="gate"
+        draggable="true"
+        data-gate="X">
+        X
+      </div>
+
+      <div
+        class="gate"
+        draggable="true"
+        data-gate="Y">
+        Y
+      </div>
+
+      <div
+        class="gate"
+        draggable="true"
+        data-gate="H">
+        H
+      </div>
+
+      <div
+        class="gate"
+        draggable="true"
+        data-gate="S">
+        S
+      </div>
+
+      <div
+        class="gate"
+        draggable="true"
+        data-gate="Z">
+        Z
+      </div>
+
+      <div
+        class="gate"
+        draggable="true"
+        data-gate="CNOT">
+        CNOT
+      </div>
+
+      <br>
+
+      <button
+        class="btn primary"
+        onclick="simulateCircuit()">
+        Simulate
+      </button>
+
+      <button
+        class="btn"
+        onclick="clearCircuit()">
+        Clear
+      </button>
+
+      <p style="
+        color:var(--muted);
+        line-height:1.6;
+        font-size:12px;
+      ">
+
+        CNOT uses q0 as the control
+        and q1 as the target.
+
+      </p>
+
+    </div>
+
+
+    <!-- CIRCUIT -->
+
+    <div class="panel circuit-panel">
+
+      <div class="circuit-scroll">
+
+        <div
+          class="circuit"
+          id="circuit">
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="simulation-box"
+        id="simulationBox">
+
+        <div style="color:var(--muted)">
+          Initial state
+        </div>
+
+        <div class="final-state">
+          |00⟩
+        </div>
+
+        <div style="
+          margin-top:12px;
+          color:var(--muted);
+          text-align:center;
+        ">
+
+          q0 is always the <b>left</b> bit.<br>
+          q1 is always the <b>right</b> bit.
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     ALGORITHMS
+========================================================= -->
+
+<section id="algorithms">
+
+  <div class="section-title">
+
+    <h2>
+      Quantum Algorithms
+    </h2>
+
+    <p>
+      Explore the major algorithms covered by
+      the platform.
+    </p>
+
+  </div>
+
+
+  <div
+    class="algorithm-grid"
+    id="algorithmGrid">
+  </div>
+
+
+  <div
+    class="panel algorithm-detail"
+    id="algorithmDetail">
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     BLOCH SPHERE
+========================================================= -->
+
+<section id="bloch-section">
+
+  <div class="section-title">
+
+    <h2>
+      Interactive Bloch Sphere
+    </h2>
+
+    <p>
+      Every pure single-qubit state corresponds
+      to a point on the surface of the sphere.
+    </p>
+
+  </div>
+
+
+  <div class="bloch-layout">
+
+
+    <div class="panel bloch-panel">
+
+      <canvas id="blochCanvas"></canvas>
+
+    </div>
+
+
+    <div class="panel bloch-controls">
+
+      <h3>
+        Explore a Quantum State
+      </h3>
+
+      <p>
+
+        The north pole represents
+        <b>|0⟩</b>.
+
+        The south pole represents
+        <b>|1⟩</b>.
+
+        The ±X and ±Y directions correspond
+        to |+⟩, |−⟩, |+i⟩ and |−i⟩.
+
+      </p>
+
+
+      <label>
+        θ:
+        <b id="thetaValue">0°</b>
+      </label>
+
+      <input
+        class="slider"
+        id="thetaSlider"
+        type="range"
+        min="0"
+        max="180"
+        value="0"
+      >
+
+
+      <br><br>
+
+
+      <label>
+        φ:
+        <b id="phiValue">0°</b>
+      </label>
+
+      <input
+        class="slider"
+        id="phiSlider"
+        type="range"
+        min="0"
+        max="360"
+        value="0"
+      >
+
+
+      <div class="state-values">
+
+        <div class="state-value">
+          State
+          <strong id="ketValue">
+            |0⟩
+          </strong>
+        </div>
+
+        <div class="state-value">
+          X
+          <strong id="xValue">
+            0
+          </strong>
+        </div>
+
+        <div class="state-value">
+          Y
+          <strong id="yValue">
+            0
+          </strong>
+        </div>
+
+        <div class="state-value">
+          Z
+          <strong id="zValue">
+            1
+          </strong>
+        </div>
+
+      </div>
+
+
+      <div class="state-buttons">
+
+        <button
+          class="btn"
+          onclick="setBlochState(0,0)">
+          |0⟩
+        </button>
+
+        <button
+          class="btn"
+          onclick="setBlochState(180,0)">
+          |1⟩
+        </button>
+
+        <button
+          class="btn"
+          onclick="setBlochState(90,0)">
+          |+⟩
+        </button>
+
+        <button
+          class="btn"
+          onclick="setBlochState(90,180)">
+          |−⟩
+        </button>
+
+        <button
+          class="btn"
+          onclick="setBlochState(90,90)">
+          |+i⟩
+        </button>
+
+        <button
+          class="btn"
+          onclick="setBlochState(90,270)">
+          |−i⟩
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     TUTOR
+========================================================= -->
+
+<section id="tutor">
+
+  <div class="section-title">
+
+    <h2>
+      QubitLab AI Tutor
+    </h2>
+
+    <p>
+      Select a concept or ask a question.
+    </p>
+
+  </div>
+
+
+  <div class="tutor-layout">
+
+
+    <div class="panel tutor-topic-list">
+
+      <button onclick="tutorTopic('Qubit')">
+        Qubit
+      </button>
+
+      <button onclick="tutorTopic('Superposition')">
+        Superposition
+      </button>
+
+      <button onclick="tutorTopic('Entanglement')">
+        Entanglement
+      </button>
+
+      <button onclick="tutorTopic('Measurement')">
+        Measurement
+      </button>
+
+      <button onclick="tutorTopic('Quantum Gates')">
+        Quantum Gates
+      </button>
+
+      <button onclick="tutorTopic('Bloch Sphere')">
+        Bloch Sphere
+      </button>
+
+      <button onclick="tutorTopic('Interference')">
+        Interference
+      </button>
+
+      <button onclick="tutorTopic('Quantum Algorithms')">
+        Quantum Algorithms
+      </button>
+
+    </div>
+
+
+    <div class="panel chat-panel">
+
+      <div
+        class="chat-messages"
+        id="chatMessages">
+
+        <div class="chat-message bot">
+
+          Hi! 👋 I'm your QubitLab AI Tutor.
+
+          <br><br>
+
+          Choose a topic from the left or ask
+          me a question below.
+
+        </div>
+
+      </div>
+
+
+      <div class="chat-input">
+
+        <input
+          id="tutorInput"
+          placeholder="Ask any academic or programming question..."
+        >
+
+        <button
+          class="btn primary"
+          onclick="askTutor()">
+          Ask
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     QUIZ
+========================================================= -->
+
+<section id="assessment">
+
+  <div class="section-title">
+
+    <h2>
+      Quantum Quiz
+    </h2>
+
+    <p>
+      Test your understanding.
+    </p>
+
+  </div>
+
+
+  <div
+    class="panel quiz"
+    id="quiz">
+
+  </div>
+
+</section>
+
+
+</main>
+
+
+<footer>
+
+  QubitLab
+  •
+  An Interactive Quantum Algorithm Learning Platform
+  •
+  MVP Prototype
+
+</footer>
+
+
+<script>
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function goTo(id){
+
+  document
+    .getElementById(id)
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
+}
+
+
+/* =========================================================
+   LEARNING CONTENT
+========================================================= */
+
+const learningTopics={
+
+  "Quantum Computing":{
+
+    tag:"FOUNDATION",
+
+    title:"What is Quantum Computing?",
+
+    body:`
+
+      <p>
+        Quantum computing is a computing paradigm
+        based on quantum-mechanical phenomena such as
+        superposition, interference and entanglement.
+      </p>
+
+      <p>
+        Classical computers process information using
+        bits. Quantum computers use <b>qubits</b>.
+      </p>
+
+      <p>
+        Quantum algorithms manipulate amplitudes of
+        quantum states and use interference to increase
+        the probability of useful outcomes.
+      </p>
+
+    `,
+
+    wiki:
+      "https://en.wikipedia.org/wiki/Quantum_computing",
+
+    sources:[
+      "https://qiskit.qotlabs.org/learning",
+      "https://quantum.cloud.ibm.com/learning"
+    ]
+
+  },
+
+
+  "Qubits":{
+
+    tag:"FUNDAMENTALS",
+
+    title:"Qubits",
+
+    body:`
+
+      <p>
+        A qubit is the fundamental unit of
+        quantum information.
+      </p>
+
+      <p>
+        A general pure qubit state can be written as:
+      </p>
+
+      <div class="formula">
+        |ψ⟩ = α|0⟩ + β|1⟩
+      </div>
+
+      <p>
+        where α and β are complex amplitudes and:
+      </p>
+
+      <div class="formula">
+        |α|² + |β|² = 1
+      </div>
+
+      <p>
+        Unlike a classical bit, a qubit can exist in
+        a superposition of the computational basis
+        states.
+      </p>
+
+    `,
+
+    wiki:
+      "https://en.wikipedia.org/wiki/Qubit",
+
+    sources:[
+      "https://qiskit.qotlabs.org/learning/courses/utility-scale-quantum-computing/bits-gates-and-circuits",
+      "https://quantum.cloud.ibm.com/learning"
+    ]
+
+  },
+
+
+  "Superposition":{
+
+    tag:"CORE CONCEPT",
+
+    title:"Superposition",
+
+    body:`
+
+      <p>
+        Superposition means a quantum state can be
+        expressed as a combination of basis states.
+      </p>
+
+      <div class="formula">
+        |+⟩ = (|0⟩ + |1⟩) / √2
+      </div>
+
+      <p>
+        Applying a Hadamard gate to |0⟩ produces |+⟩.
+      </p>
+
+      <p>
+        When measured in the computational basis,
+        |+⟩ produces 0 or 1 with equal probability.
+      </p>
+
+      <p>
+        The important feature is that quantum states
+        contain <b>amplitudes and phase</b>, allowing
+        later operations to produce interference.
+      </p>
+
+    `,
+
+    wiki:
+      "https://en.wikipedia.org/wiki/Quantum_superposition",
+
+    sources:[
+      "https://qiskit.qotlabs.org/learning/modules/quantum-mechanics/superposition-with-qiskit",
+      "https://quantum.cloud.ibm.com/learning"
+    ]
+
+  },
+
+
+  "Measurement":{
+
+    tag:"CORE CONCEPT",
+
+    title:"Quantum Measurement",
+
+    body:`
+
+      <p>
+        Measurement extracts a classical result from
+        a quantum state.
+      </p>
+
+      <p>
+        For:
+      </p>
+
+      <div class="formula">
+        |ψ⟩ = α|0⟩ + β|1⟩
+      </div>
+
+      <p>
+        computational-basis measurement produces:
+      </p>
+
+      <ul>
+
+        <li>0 with probability |α|²</li>
+        <li>1 with probability |β|²</li>
+
+      </ul>
+
+      <p>
+        Measurement generally projects the state onto
+        the measured basis state.
+      </p>
+
+    `,
+
+    wiki:
+      "https://en.wikipedia.org/wiki/Measurement_in_quantum_mechanics",
+
+    sources:[
+      "https://qiskit.qotlabs.org/learning",
+      "https://quantum.cloud.ibm.com/learning"
+    ]
+
+  },
+
+
+  "Entanglement":{
+
+    tag:"CORE CONCEPT",
+
+    title:"Quantum Entanglement",
+
+    body:`
+
+      <p>
+        Entanglement is a quantum correlation in which
+        the joint state of multiple systems cannot be
+        described as independent states of the systems.
+      </p>
+
+      <p>
+        One famous Bell state is:
+      </p>
+
+      <div class="formula">
+        |Φ⁺⟩ = (|00⟩ + |11⟩) / √2
+      </div>
+
+      <p>
+        A simple circuit for creating it is:
+      </p>
+
+      <ol>
+        <li>Start with |00⟩.</li>
+        <li>Apply H to q0.</li>
+        <li>Apply CNOT with q0 as control and q1 as target.</li>
+      </ol>
+
+      <p>
+        Measuring this ideal state in the computational
+        basis gives correlated results: 00 or 11.
+      </p>
+
+    `,
+
+    wiki:
+      "https://en.wikipedia.org/wiki/Quantum_entanglement",
+
+    sources:[
+      "https://qiskit.qotlabs.org/learning",
+      "https://quantum.cloud.ibm.com/learning"
+    ]
+
+  },
+
+
+  "Quantum Gates":{
+
+    tag:"GATES",
+
+    title:"Quantum Gates",
+
+    body:`
+
+      <p>
+        Quantum gates are operations that transform
+        quantum states.
+      </p>
+
+      <ul>
+
+        <li>
+          <b>X:</b> flips |0⟩ and |1⟩.
+        </li>
+
+        <li>
+          <b>Y:</b> performs the Pauli-Y transformation.
+        </li>
+
+        <li>
+          <b>Z:</b> changes the phase of |1⟩.
+        </li>
+
+        <li>
+          <b>H:</b> creates and removes important
+          superpositions.
+        </li>
+
+        <li>
+          <b>S:</b> applies a π/2 phase rotation.
+        </li>
+
+        <li>
+          <b>CNOT:</b> flips the target qubit when
+          the control is |1⟩.
+        </li>
+
+      </ul>
+
+      <p>
+        Many quantum gates can be interpreted as
+        rotations of the state on the Bloch sphere.
+      </p>
+
+    `,
+
+    wiki:
+      "https://en.wikipedia.org/wiki/Quantum_logic_gate",
+
+    sources:[
+      "https://qiskit.qotlabs.org/learning",
+      "https://quantum.cloud.ibm.com/learning"
+    ]
+
+  },
+
+
+  "Phase & Interference":{
+
+    tag:"CORE CONCEPT",
+
+    title:"Phase & Quantum Interference",
+
+    body:`
+
+      <p>
+        Quantum amplitudes can be complex numbers.
+        Their relative phases affect how amplitudes
+        combine.
+      </p>
+
+      <p>
+        When amplitudes reinforce one another we get
+        <b>constructive interference</b>.
+      </p>
+
+      <p>
+        When amplitudes cancel one another we get
+        <b>destructive interference</b>.
+      </p>
+
+      <p>
+        Quantum algorithms exploit this behavior to
+        amplify useful answers and suppress unwanted
+        outcomes.
+      </p>
+
+    `,
+
+    wiki:
+      "https://en.wikipedia.org/wiki/Quantum_interference",
+
+    sources:[
+      "https://qiskit.qotlabs.org/learning",
+      "https://quantum.cloud.ibm.com/learning"
+    ]
+
+  },
+
+
+  "Bloch Sphere":{
+
+    tag:"VISUALIZATION",
+
+    title:"Bloch Sphere",
+
+    body:`
+
+      <p>
+        The Bloch sphere is a geometric representation
+        of a pure single-qubit state.
+      </p>
+
+      <ul>
+
+        <li>North pole → <b>|0⟩</b></li>
+        <li>South pole → <b>|1⟩</b></li>
+        <li>+X direction → <b>|+⟩</b></li>
+        <li>−X direction → <b>|−⟩</b></li>
+        <li>+Y direction → <b>|+i⟩</b></li>
+        <li>−Y direction → <b>|−i⟩</b></li>
+
+      </ul>
+
+      <p>
+        A pure state can be represented as:
+      </p>
+
+      <div class="formula">
+        |ψ⟩ =
+        cos(θ/2)|0⟩ +
+        e<sup>iφ</sup>sin(θ/2)|1⟩
+      </div>
+
+      <p>
+        Use the interactive Bloch sphere below to
+        explore these states.
+      </p>
+
+    `,
+
+    wiki:
+      "https://en.wikipedia.org/wiki/Bloch_sphere",
+
+    sources:[
+      "https://qiskit.qotlabs.org/learning/courses/general-formulation-of-quantum-information/density-matrices/bloch-sphere",
+      "https://quantum.cloud.ibm.com/learning"
+    ]
+
+  },
+
+
+  "Quantum Circuits":{
+
+    tag:"BUILD",
+
+    title:"Quantum Circuits",
+
+    body:`
+
+      <p>
+        A quantum circuit describes a sequence of
+        quantum operations applied to qubits.
+      </p>
+
+      <p>
+        Each horizontal wire represents a qubit.
+        Gates are placed from left to right to indicate
+        the order of operations.
+      </p>
+
+      <p>
+        For a CNOT gate, one qubit is the
+        <b>control</b> and another is the
+        <b>target</b>.
+      </p>
+
+      <p>
+        The target is flipped only when the control
+        qubit is in |1⟩.
+      </p>
+
+    `,
+
+    wiki:
+      "https://en.wikipedia.org/wiki/Quantum_circuit",
+
+    sources:[
+      "https://qiskit.qotlabs.org/docs/guides/composer",
+      "https://quantum.cloud.ibm.com/learning"
+    ]
+
+  }
+
+};
+
+
+const topicList=
+  document.getElementById("topicList");
+
+
+const learningContent=
+  document.getElementById("learningContent");
+
+
+Object.keys(learningTopics)
+.forEach((name,index)=>{
+
+  const button=
+    document.createElement("button");
+
+  button.className="topic-button";
+
+  button.textContent=name;
+
+  button.onclick=()=>{
+    showLearningTopic(name,button);
+  };
+
+  topicList.appendChild(button);
+
+  if(index===0){
+    showLearningTopic(name,button);
+  }
+
+});
+
+
+function showLearningTopic(name,button){
+
+  document
+    .querySelectorAll(".topic-button")
+    .forEach(b=>{
+      b.classList.remove("active");
+    });
+
+  button.classList.add("active");
+
+  const topic=
+    learningTopics[name];
+
+
+  learningContent.innerHTML=`
+
+    <div class="tag">
+      ${topic.tag}
+    </div>
+
+    <h3>
+      ${topic.title}
+    </h3>
+
+    ${topic.body}
+
+    <div class="source-buttons">
+
+      <a
+        class="btn"
+        href="${topic.wiki}"
+        target="_blank">
+        Wikipedia ↗
+      </a>
+
+      <button
+        class="btn"
+        onclick="showMoreSources('${name}')">
+        More Sources
+      </button>
+
+    </div>
+
+    <div
+      id="moreSources"
+      style="display:none;margin-top:15px">
+
+      ${topic.sources.map(source=>`
+
+        <a
+          href="${source}"
+          target="_blank"
+          style="
+            display:block;
+            color:var(--cyan);
+            margin:8px 0;
+          ">
+          ${source}
+        </a>
+
+      `).join("")}
+
+    </div>
+
+  `;
+
+}
+
+
+function showMoreSources(name){
+
+  const box=
+    document.getElementById("moreSources");
+
+  if(box){
+    box.style.display=
+      box.style.display==="none"
+      ? "block"
+      : "none";
+  }
+
+}
+
+
+/* =========================================================
+   CIRCUIT DATA
+========================================================= */
+
+const circuitColumns=8;
+
+
+/*
+   IMPORTANT:
+
+   circuitState[0] = q0
+   circuitState[1] = q1
+
+   q0 is ALWAYS the left/most-significant
+   output bit.
+
+   Therefore:
+
+   q0 = 1
+   q1 = 0
+
+   => |10⟩
+*/
+
+let circuitState=[
+  Array(circuitColumns).fill(null),
+  Array(circuitColumns).fill(null)
+];
+
+
+/*
+   CNOT is stored separately because it occupies
+   BOTH q0 and q1 in the same column.
+*/
+
+let cnotColumns=
+  Array(circuitColumns).fill(false);
+
+
+/* =========================================================
+   CIRCUIT RENDER
+========================================================= */
+
+function renderCircuit(){
+
+  const circuit=
+    document.getElementById("circuit");
+
+  circuit.innerHTML="";
+
+
+  const header=
+    document.createElement("div");
+
+  header.className="circuit-header";
+
+  header.innerHTML=
+    `<div></div>`+
+    Array.from(
+      {length:circuitColumns},
+      (_,i)=>`<div>${i+1}</div>`
+    ).join("");
+
+  circuit.appendChild(header);
+
+
+  for(let row=0;row<2;row++){
+
+    const qrow=
+      document.createElement("div");
+
+    qrow.className="qrow";
+
+
+    const qname=
+      document.createElement("div");
+
+    qname.className="qname";
+
+    qname.textContent=
+      row===0 ? "q0" : "q1";
+
+    qrow.appendChild(qname);
+
+
+    for(let col=0;col<circuitColumns;col++){
+
+      const cell=
+        document.createElement("div");
+
+      cell.className="cell";
+
+      cell.dataset.row=row;
+      cell.dataset.col=col;
+
+
+      cell.addEventListener(
+        "dragover",
+        e=>{
+          e.preventDefault();
+          cell.classList.add("drop-target");
+        }
+      );
+
+
+      cell.addEventListener(
+        "dragleave",
+        ()=>{
+          cell.classList.remove(
+            "drop-target"
+          );
+        }
+      );
+
+
+      cell.addEventListener(
+        "drop",
+        e=>{
+
+          e.preventDefault();
+
+          cell.classList.remove(
+            "drop-target"
+          );
+
+          const gate=
+            e.dataTransfer.getData("gate");
+
+
+          /*
+             CNOT is always q0 CONTROL
+             and q1 TARGET.
+          */
+
+          if(gate==="CNOT"){
+
+            cnotColumns[col]=true;
+
+            circuitState[0][col]=null;
+            circuitState[1][col]=null;
+
+          }
+
+          else{
+
+            /*
+              If a normal gate is dropped into
+              a column occupied by CNOT,
+              remove CNOT first.
+            */
+
+            cnotColumns[col]=false;
+
+            circuitState[row][col]=gate;
+
+          }
+
+
+          renderCircuit();
+
+        }
+      );
+
+
+      /*
+        CNOT visualization
+      */
+
+      if(cnotColumns[col]){
+
+        if(row===0){
+
+          const control=
+            document.createElement("div");
+
+          control.className=
+            "cnot-control";
+
+          cell.appendChild(control);
+
+        }
+        else{
+
+          const target=
+            document.createElement("div");
+
+          target.className=
+            "cnot-target";
+
+          cell.appendChild(target);
+
+        }
+
+
+        const line=
+          document.createElement("div");
+
+        line.className="cnot-line";
+
+        cell.appendChild(line);
+
+      }
+
+
+      /*
+        Normal gate
+      */
+
+      else if(circuitState[row][col]){
+
+        const placed=
+          document.createElement("div");
+
+        placed.className=
+          "placed-gate";
+
+        placed.textContent=
+          circuitState[row][col];
+
+        cell.appendChild(placed);
+
+      }
+
+
+      qrow.appendChild(cell);
+
+    }
+
+
+    circuit.appendChild(qrow);
+
+  }
+
+}
+
+
+document
+  .querySelectorAll(".gate")
+  .forEach(gate=>{
+
+    gate.addEventListener(
+      "dragstart",
+      e=>{
+
+        e.dataTransfer.setData(
+          "gate",
+          gate.dataset.gate
+        );
+
+      }
+    );
+
+  });
+
+
+renderCircuit();
+
+
+function clearCircuit(){
+
+  circuitState=[
+    Array(circuitColumns).fill(null),
+    Array(circuitColumns).fill(null)
+  ];
+
+  cnotColumns=
+    Array(circuitColumns).fill(false);
+
+  renderCircuit();
+
+  document.getElementById(
+    "simulationBox"
+  ).innerHTML=`
+
+    <div style="color:var(--muted)">
+      Initial state
+    </div>
+
+    <div class="final-state">
+      |00⟩
+    </div>
+
+    <div style="
+      margin-top:12px;
+      color:var(--muted);
+      text-align:center;
+    ">
+      q0 is the left bit.
+      q1 is the right bit.
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   COMPLEX NUMBER HELPERS
+========================================================= */
+
+function complexAdd(a,b){
+
+  return [
+    a[0]+b[0],
+    a[1]+b[1]
+  ];
+
+}
+
+
+function complexSub(a,b){
+
+  return [
+    a[0]-b[0],
+    a[1]-b[1]
+  ];
+
+}
+
+
+function complexMul(a,b){
+
+  return [
+    a[0]*b[0]-a[1]*b[1],
+    a[0]*b[1]+a[1]*b[0]
+  ];
+
+}
+
+
+/* =========================================================
+   SINGLE QUBIT GATE
+========================================================= */
+
+/*
+   Basis order:
+
+   |00⟩ = index 0
+   |01⟩ = index 1
+   |10⟩ = index 2
+   |11⟩ = index 3
+
+   q0 = MOST SIGNIFICANT BIT
+   q1 = LEAST SIGNIFICANT BIT
+*/
+
+function applyGate(state,qubit,gate){
+
+  const result=
+    state.map(a=>[a[0],a[1]]);
+
+
+  const bitMask=
+    qubit===0 ? 2 : 1;
+
+
+  for(let base=0;base<4;base++){
+
+    if((base & bitMask)!==0)
+      continue;
+
+
+    const pair=
+      base | bitMask;
+
+
+    const a=
+      state[base];
+
+    const b=
+      state[pair];
+
+
+    let r0;
+    let r1;
+
+
+    /* X */
+
+    if(gate==="X"){
+
+      r0=b;
+      r1=a;
+
+    }
+
+
+    /* Y */
+
+    else if(gate==="Y"){
+
+      /*
+        Y =
+        [ 0 -i ]
+        [ i  0 ]
+      */
+
+      r0=[
+        b[1],
+        -b[0]
+      ];
+
+      r1=[
+        -a[1],
+        a[0]
+      ];
+
+    }
+
+
+    /* Z */
+
+    else if(gate==="Z"){
+
+      r0=a;
+
+      r1=[
+        -b[0],
+        -b[1]
+      ];
+
+    }
+
+
+    /* H */
+
+    else if(gate==="H"){
+
+      const k=
+        1/Math.sqrt(2);
+
+      r0=[
+        (a[0]+b[0])*k,
+        (a[1]+b[1])*k
+      ];
+
+      r1=[
+        (a[0]-b[0])*k,
+        (a[1]-b[1])*k
+      ];
+
+    }
+
+
+    /* S */
+
+    else if(gate==="S"){
+
+      /*
+        S|0> = |0>
+        S|1> = i|1>
+      */
+
+      r0=a;
+
+      r1=[
+        -b[1],
+        b[0]
+      ];
+
+    }
+
+
+    else{
+
+      continue;
+
+    }
+
+
+    result[base]=r0;
+    result[pair]=r1;
+
+  }
+
+
+  return result;
+
+}
+
+
+/* =========================================================
+   CNOT
+========================================================= */
+
+/*
+   q0 = CONTROL
+   q1 = TARGET
+
+   q0 q1
+
+   0  0 -> 00
+   0  1 -> 01
+   1  0 -> 11
+   1  1 -> 10
+
+   This means:
+
+   |10> -> |11>
+   |11> -> |10>
+
+*/
+
+function applyCNOT(state){
+
+  const result=
+    state.map(a=>[a[0],a[1]]);
+
+
+  /*
+     Since q0 is control,
+     swap |10> and |11>.
+  */
+
+  result[2]=[
+    state[3][0],
+    state[3][1]
+  ];
+
+  result[3]=[
+    state[2][0],
+    state[2][1]
+  ];
+
+
+  return result;
+
+}
+
+
+/* =========================================================
+   SIMULATOR
+========================================================= */
+
+function simulateCircuit(){
+
+  /*
+    Start in |00>
+  */
+
+  let state=[
+
+    [1,0], // |00>
+    [0,0], // |01>
+    [0,0], // |10>
+    [0,0]  // |11>
+
+  ];
+
+
+  /*
+    Execute columns from left to right.
+  */
+
+  for(
+    let col=0;
+    col<circuitColumns;
+    col++
+  ){
+
+    /*
+      CNOT occupies both wires.
+    */
+
+    if(cnotColumns[col]){
+
+      state=
+        applyCNOT(state);
+
+      continue;
+
+    }
+
+
+    const q0Gate=
+      circuitState[0][col];
+
+    const q1Gate=
+      circuitState[1][col];
+
+
+    if(q0Gate){
+
+      state=
+        applyGate(
+          state,
+          0,
+          q0Gate
+        );
+
+    }
+
+
+    if(q1Gate){
+
+      state=
+        applyGate(
+          state,
+          1,
+          q1Gate
+        );
+
+    }
+
+  }
+
+
+  const labels=[
+    "00",
+    "01",
+    "10",
+    "11"
+  ];
+
+
+  const probabilities=
+    state.map(a=>
+      a[0]*a[0]+a[1]*a[1]
+    );
+
+
+  /*
+     For a deterministic computational-basis
+     state, determine q0/q1 explicitly.
+  */
+
+  let maxIndex=0;
+
+  for(let i=1;i<4;i++){
+
+    if(
+      probabilities[i]
+      >
+      probabilities[maxIndex]
+    ){
+
+      maxIndex=i;
+
+    }
+
+  }
+
+
+  const q0=
+    labels[maxIndex][0];
+
+  const q1=
+    labels[maxIndex][1];
+
+
+  let probabilityHTML="";
+
+
+  probabilities.forEach(
+    (probability,index)=>{
+
+      probabilityHTML+=`
+
+        <div class="prob-item">
+
+          <b>
+            |${labels[index]}⟩
+          </b>
+
+          <span>
+            ${(probability*100).toFixed(1)}%
+          </span>
+
+        </div>
+
+      `;
+
+    }
+  );
+
+
+  document.getElementById(
+    "simulationBox"
+  ).innerHTML=`
+
+    <div style="color:var(--muted)">
+      Final qubit values
+    </div>
+
+
+    <div class="output-grid">
+
+      <div class="output-qubit">
+
+        <span>
+          q0 — first / left bit
+        </span>
+
+        <strong>
+          |${q0}⟩
+        </strong>
+
+      </div>
+
+
+      <div class="output-qubit">
+
+        <span>
+          q1 — second / right bit
+        </span>
+
+        <strong>
+          |${q1}⟩
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="final-state">
+
+      Final state:
+      |${q0}${q1}⟩
+
+    </div>
+
+
+    <div style="
+      margin-top:14px;
+      color:var(--muted);
+      text-align:center;
+    ">
+
+      Output convention:
+      <b> |q0 output q1 output⟩ </b>
+
+    </div>
+
+
+    <div class="probability-title">
+      Measurement probabilities
+    </div>
+
+
+    <div class="probability-grid">
+
+      ${probabilityHTML}
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   ALGORITHMS
+========================================================= */
+
+const algorithms={
+
+  "Deutsch Algorithm":{
+
+    description:
+      "Determines whether a promised one-bit function is constant or balanced with a single quantum query.",
+
+    code:
+`from qiskit import QuantumCircuit
+
+qc = QuantumCircuit(2, 1)
+
+# Prepare oracle ancilla
+qc.x(1)
+
+# Superposition
+qc.h(0)
+qc.h(1)
+
+# Oracle U_f
+# ...
+
+# Interference
+qc.h(0)
+
+# Measure
+qc.measure(0, 0)`
+
+  },
+
+
+  "Deutsch–Jozsa Algorithm":{
+
+    description:
+      "Determines whether a promised function is constant or balanced.",
+
+    code:
+`from qiskit import QuantumCircuit
+
+n = 3
+
+qc = QuantumCircuit(
+    n + 1,
+    n
+)
+
+qc.x(n)
+
+qc.h(range(n + 1))
+
+# Oracle U_f
+# ...
+
+qc.h(range(n))
+
+qc.measure(
+    range(n),
+    range(n)
+)`
+
+  },
+
+
+  "Bernstein–Vazirani":{
+
+    description:
+      "Finds a hidden binary string encoded inside an oracle using one quantum query.",
+
+    code:
+`from qiskit import QuantumCircuit
+
+secret = "1011"
+
+n = len(secret)
+
+qc = QuantumCircuit(
+    n + 1,
+    n
+)
+
+qc.x(n)
+
+qc.h(range(n + 1))
+
+# Oracle encoding
+# the hidden string
+# ...
+
+qc.h(range(n))
+
+qc.measure(
+    range(n),
+    range(n)
+)`
+
+  },
+
+
+  "Simon's Algorithm":{
+
+    description:
+      "Finds a hidden XOR mask in a promised two-to-one function.",
+
+    code:
+`from qiskit import QuantumCircuit
+
+n = 3
+
+qc = QuantumCircuit(
+    2*n,
+    n
+)
+
+qc.h(range(n))
+
+# Oracle U_f
+# ...
+
+qc.h(range(n))
+
+qc.measure(
+    range(n),
+    range(n)
+)`
+
+  },
+
+
+  "Grover's Search":{
+
+    description:
+      "Uses amplitude amplification to increase the probability of measuring a marked item in an unstructured search space.",
+
+    code:
+`from qiskit import QuantumCircuit
+
+qc = QuantumCircuit(2, 2)
+
+# Create superposition
+qc.h(0)
+qc.h(1)
+
+# Oracle
+# Mark the desired state
+# ...
+
+# Diffusion operator
+# ...
+
+qc.measure(
+    [0, 1],
+    [0, 1]
+)`
+
+  },
+
+
+  "Quantum Fourier Transform":{
+
+    description:
+      "Transforms amplitudes into the Fourier basis and forms an important component of phase-based quantum algorithms.",
+
+    code:
+`from qiskit import QuantumCircuit
+from math import pi
+
+n = 3
+
+qc = QuantumCircuit(n)
+
+for j in range(n):
+
+    qc.h(j)
+
+    # Controlled phase rotations
+    # ...`
+
+  },
+
+
+  "Quantum Phase Estimation":{
+
+    description:
+      "Estimates the phase associated with an eigenvalue of a unitary operation.",
+
+    code:
+`from qiskit import QuantumCircuit
+
+qc = QuantumCircuit(4, 3)
+
+# Counting register
+qc.h([0, 1, 2])
+
+# Prepare eigenstate
+# ...
+
+# Controlled-U operations
+# ...
+
+# Inverse QFT
+# ...
+
+qc.measure(
+    [0, 1, 2],
+    [0, 1, 2]
+)`
+
+  },
+
+
+  "Shor's Algorithm":{
+
+    description:
+      "Uses quantum period finding as the quantum component of integer factorization.",
+
+    code:
+`from qiskit import QuantumCircuit
+
+qc = QuantumCircuit(8)
+
+# 1. Prepare superposition
+# ...
+
+# 2. Modular exponentiation
+# ...
+
+# 3. Inverse QFT
+# ...
+
+# 4. Measurement
+# ...
+
+# 5. Classical post-processing`
+
+  }
+
+};
+
+
+const algorithmGrid=
+  document.getElementById(
+    "algorithmGrid"
+  );
+
+
+Object.keys(algorithms)
+.forEach(name=>{
+
+  const card=
+    document.createElement("div");
+
+  card.className=
+    "panel algorithm-card";
+
+  card.innerHTML=`
+
+    <div class="tag">
+      ALGORITHM
+    </div>
+
+    <h3>
+      ${name}
+    </h3>
+
+    <p>
+      ${algorithms[name].description}
+    </p>
+
+  `;
+
+  card.onclick=()=>{
+    showAlgorithm(name);
+  };
+
+  algorithmGrid.appendChild(card);
+
+});
+
+
+function escapeHTML(text){
+
+  return text
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
+
+}
+
+
+function showAlgorithm(name){
+
+  const data=
+    algorithms[name];
+
+  const detail=
+    document.getElementById(
+      "algorithmDetail"
+    );
+
+  detail.style.display="block";
+
+  detail.innerHTML=`
+
+    <div class="tag">
+      ALGORITHM
+    </div>
+
+    <h2>
+      ${name}
+    </h2>
+
+    <p>
+      ${data.description}
+    </p>
+
+    <h3>
+      Example Code
+    </h3>
+
+    <pre>${escapeHTML(
+      data.code
+    )}</pre>
+
+  `;
+
+  detail.scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+
+}
+
+
+/* =========================================================
+   BLOCH SPHERE
+========================================================= */
+
+const canvas=
+  document.getElementById(
+    "blochCanvas"
+  );
+
+const ctx=
+  canvas.getContext("2d");
+
+
+let theta=0;
+let phi=0;
+
+
+function resizeBloch(){
+
+  const rect=
+    canvas.getBoundingClientRect();
+
+  const dpr=
+    window.devicePixelRatio || 1;
+
+  canvas.width=
+    rect.width*dpr;
+
+  canvas.height=
+    rect.height*dpr;
+
+  ctx.setTransform(
+    dpr,0,0,dpr,0,0
+  );
+
+  drawBloch();
+
+}
+
+
+window.addEventListener(
+  "resize",
+  resizeBloch
+);
+
+
+function drawBloch(){
+
+  const w=
+    canvas.clientWidth;
+
+  const h=
+    canvas.clientHeight;
+
+
+  ctx.clearRect(
+    0,
+    0,
+    w,
+    h
+  );
+
+
+  const cx=w/2;
+  const cy=h/2;
+
+  const r=
+    Math.min(w,h)*.34;
+
+
+  /*
+     Sphere outline
+  */
+
+  ctx.strokeStyle=
+    "rgba(89,229,255,.4)";
+
+  ctx.lineWidth=1.2;
+
+
+  ctx.beginPath();
+
+  ctx.arc(
+    cx,
+    cy,
+    r,
+    0,
+    Math.PI*2
+  );
+
+  ctx.stroke();
+
+
+  /*
+     Equator
+  */
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    cx,
+    cy,
+    r,
+    r*.34,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.stroke();
+
+
+  /*
+     Vertical longitude
+  */
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    cx,
+    cy,
+    r*.34,
+    r,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.stroke();
+
+
+  /*
+     X axis
+  */
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    cx-r,
+    cy
+  );
+
+  ctx.lineTo(
+    cx+r,
+    cy
+  );
+
+  ctx.stroke();
+
+
+  /*
+     Z axis
+  */
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    cx,
+    cy-r
+  );
+
+  ctx.lineTo(
+    cx,
+    cy+r
+  );
+
+  ctx.stroke();
+
+
+  /*
+     State coordinates
+
+     x = sinθ cosφ
+     y = sinθ sinφ
+     z = cosθ
+  */
+
+  const t=
+    theta*Math.PI/180;
+
+  const p=
+    phi*Math.PI/180;
+
+
+  const x=
+    Math.sin(t)*Math.cos(p);
+
+  const y=
+    Math.sin(t)*Math.sin(p);
+
+  const z=
+    Math.cos(t);
+
+
+  /*
+     3D-ish projection
+
+     x -> horizontal
+     y -> depth-ish vertical
+     z -> vertical
+  */
+
+  const px=
+    cx+x*r;
+
+  const py=
+    cy-
+    z*r-
+    y*r*.25;
+
+
+  /*
+     State vector
+  */
+
+  ctx.strokeStyle=
+    "#59e5ff";
+
+  ctx.lineWidth=4;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    cx,
+    cy
+  );
+
+  ctx.lineTo(
+    px,
+    py
+  );
+
+  ctx.stroke();
+
+
+  /*
+     State point
+  */
+
+  ctx.fillStyle=
+    "#59e5ff";
+
+  ctx.shadowColor=
+    "#59e5ff";
+
+  ctx.shadowBlur=20;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    px,
+    py,
+    8,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.shadowBlur=0;
+
+
+  /*
+     Labels
+  */
+
+  ctx.fillStyle=
+    "#e7fbff";
+
+  ctx.font=
+    "15px Segoe UI";
+
+
+  ctx.fillText(
+    "|0⟩",
+    cx+9,
+    cy-r-12
+  );
+
+  ctx.fillText(
+    "|1⟩",
+    cx+9,
+    cy+r+20
+  );
+
+  ctx.fillText(
+    "|+⟩",
+    cx+r+12,
+    cy+5
+  );
+
+  ctx.fillText(
+    "|−⟩",
+    cx-r-28,
+    cy+5
+  );
+
+  ctx.fillText(
+    "|+i⟩",
+    cx+8,
+    cy-r*.72
+  );
+
+  ctx.fillText(
+    "|−i⟩",
+    cx+8,
+    cy+r*.72+17
+  );
+
+
+  document.getElementById(
+    "xValue"
+  ).textContent=x.toFixed(2);
+
+  document.getElementById(
+    "yValue"
+  ).textContent=y.toFixed(2);
+
+  document.getElementById(
+    "zValue"
+  ).textContent=z.toFixed(2);
+
+  document.getElementById(
+    "ketValue"
+  ).textContent=
+    identifyState(theta,phi);
+
+}
+
+
+function identifyState(t,p){
+
+  if(t<1)
+    return "|0⟩";
+
+  if(t>179)
+    return "|1⟩";
+
+  if(Math.abs(t-90)<1.5){
+
+    const normalized=
+      ((p%360)+360)%360;
+
+    if(normalized<1.5)
+      return "|+⟩";
+
+    if(Math.abs(normalized-180)<1.5)
+      return "|−⟩";
+
+    if(Math.abs(normalized-90)<1.5)
+      return "|+i⟩";
+
+    if(Math.abs(normalized-270)<1.5)
+      return "|−i⟩";
+
+  }
+
+  return "|ψ⟩";
+
+}
+
+
+function setBlochState(t,p){
+
+  theta=t;
+  phi=p;
+
+  document.getElementById(
+    "thetaSlider"
+  ).value=t;
+
+  document.getElementById(
+    "phiSlider"
+  ).value=p;
+
+  document.getElementById(
+    "thetaValue"
+  ).textContent=t+"°";
+
+  document.getElementById(
+    "phiValue"
+  ).textContent=p+"°";
+
+  drawBloch();
+
+}
+
+
+document.getElementById(
+  "thetaSlider"
+).addEventListener(
+  "input",
+  e=>{
+
+    theta=
+      Number(e.target.value);
+
+    document.getElementById(
+      "thetaValue"
+    ).textContent=
+      theta+"°";
+
+    drawBloch();
+
+  }
+);
+
+
+document.getElementById(
+  "phiSlider"
+).addEventListener(
+  "input",
+  e=>{
+
+    phi=
+      Number(e.target.value);
+
+    document.getElementById(
+      "phiValue"
+    ).textContent=
+      phi+"°";
+
+    drawBloch();
+
+  }
+);
+
+
+resizeBloch();
+
+
+/* =========================================================
+   TUTOR
+========================================================= */
+
+const tutorAnswers={
+
+  "Qubit":`
+A qubit is the basic unit of quantum information.
+
+A classical bit is either 0 or 1. A qubit can be in a state such as:
+
+|ψ⟩ = α|0⟩ + β|1⟩
+
+where the probabilities satisfy |α|² + |β|² = 1.
+
+You can explore its state using the Bloch Sphere section.
+`,
+
+  "Superposition":`
+Superposition means a quantum state can contain amplitudes for multiple basis states.
+
+For example:
+
+|+⟩ = (|0⟩ + |1⟩) / √2
+
+If this state is measured in the computational basis, the result is 0 or 1 with equal probability.
+
+The key is that the state contains amplitudes and phase, which allows quantum interference.
+`,
+
+  "Entanglement":`
+Entanglement describes quantum correlations between systems that cannot be described as independent states.
+
+A famous example is:
+
+(|00⟩ + |11⟩) / √2
+
+A simple way to create it is H on q0 followed by CNOT(q0,q1).
+`,
+
+  "Measurement":`
+Measurement gives a classical result from a quantum state.
+
+For:
+
+|ψ⟩ = α|0⟩ + β|1⟩
+
+the probability of measuring 0 is |α|² and the probability of measuring 1 is |β|².
+
+Measurement also generally changes the quantum state.
+`,
+
+  "Quantum Gates":`
+Quantum gates transform quantum states.
+
+X flips |0⟩ ↔ |1⟩.
+
+H creates important superpositions.
+
+Z changes the phase of |1⟩.
+
+S applies a π/2 phase operation.
+
+CNOT flips the target when its control is |1⟩.
+`,
+
+  "Bloch Sphere":`
+The Bloch sphere represents pure single-qubit states geometrically.
+
+|0⟩ is at the north pole.
+
+|1⟩ is at the south pole.
+
+|+⟩ and |−⟩ lie along the X axis.
+
+|+i⟩ and |−i⟩ lie along the Y axis.
+
+Use the interactive sphere to explore these states.
+`,
+
+  "Interference":`
+Quantum interference happens when quantum amplitudes combine.
+
+Some paths can reinforce each other constructively, while others can cancel destructively.
+
+Quantum algorithms use this to increase the probability of useful outcomes.
+`,
+
+  "Quantum Algorithms":`
+Quantum algorithms are procedures designed to exploit quantum phenomena such as superposition, interference and entanglement.
+
+Examples include Deutsch-Jozsa, Bernstein-Vazirani, Simon's algorithm, Grover's search, the Quantum Fourier Transform, Phase Estimation and Shor's algorithm.
+`
+
+};
+
+
+function addChatMessage(
+  text,
+  type
+){
+
+  const messages=
+    document.getElementById(
+      "chatMessages"
+    );
+
+
+  /*
+     Keep the chat area manageable.
+     Older messages are removed after 8.
+  */
+
+  while(
+    messages.children.length>=8
+  ){
+
+    messages.removeChild(
+      messages.firstElementChild
+    );
+
+  }
+
+
+  const message=
+    document.createElement("div");
+
+  message.className=
+    "chat-message "+type;
+
+  message.textContent=text;
+
+  messages.appendChild(message);
+
+
+  messages.scrollTop=
+    messages.scrollHeight;
+
+}
+
+
+let tutorHistory = [];
+
+function tutorTopic(topic) {
+  const input = document.getElementById("tutorInput");
+  if (!input) return;
+  input.value = `Explain ${topic} in simple beginner-friendly language with an example.`;
+  askTutor();
+}
+
+async function askTutor() {
+  const input = document.getElementById("tutorInput");
+  const chatMessages = document.getElementById("chatMessages");
+  if (!input || !chatMessages) return;
+
+  const question = input.value.trim();
+  if (!question) return;
+
+  addChatMessage(question, "user");
+  input.value = "";
+  input.disabled = true;
+
+  const loadingMessage = document.createElement("div");
+  loadingMessage.className = "chat-message bot";
+  loadingMessage.id = "tutorLoading";
+  loadingMessage.textContent = "Thinking...";
+  chatMessages.appendChild(loadingMessage);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+
+  try {
+    const response = await fetch("/api/tutor", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, history: tutorHistory })
+    });
+
+    const data = await response.json();
+    loadingMessage.remove();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Unable to get an answer.");
+    }
+
+    addChatMessage(data.answer, "bot");
+
+    tutorHistory.push({ role: "user", text: question });
+    tutorHistory.push({ role: "model", text: data.answer });
+    tutorHistory = tutorHistory.slice(-20);
+  } catch (error) {
+    console.error("Tutor Error:", error);
+    if (loadingMessage.parentNode) loadingMessage.remove();
+    addChatMessage(
+      "Sorry, I could not connect to the AI tutor. Please make sure the server is running.",
+      "bot"
+    );
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
+}
+
+document.getElementById("tutorInput").addEventListener("keydown", event => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    askTutor();
+  }
+});
+
+/* =========================================================
+   QUIZ
+========================================================= */
+
+const quizQuestions=[
+
+  {
+    question:
+      "A qubit starts in |0⟩ and an X gate is applied. What is the result?",
+
+    options:[
+      "|0⟩",
+      "|1⟩",
+      "|+⟩",
+      "|−⟩"
+    ],
+
+    answer:1
+
+  },
+
+
+  {
+    question:
+      "What does H|0⟩ produce?",
+
+    options:[
+      "|0⟩",
+      "|1⟩",
+      "|+⟩",
+      "|−⟩"
+    ],
+
+    answer:2
+
+  },
+
+
+  {
+    question:
+      "Where is |1⟩ located on the Bloch sphere?",
+
+    options:[
+      "North pole",
+      "South pole",
+      "+X direction",
+      "+Y direction"
+    ],
+
+    answer:1
+
+  },
+
+
+  {
+    question:
+      "For a CNOT with q0 as control and q1 as target, what happens to |10⟩?",
+
+    options:[
+      "|00⟩",
+      "|01⟩",
+      "|10⟩",
+      "|11⟩"
+    ],
+
+    answer:3
+
+  },
+
+
+  {
+    question:
+      "Which state corresponds to the +Y direction of the Bloch sphere?",
+
+    options:[
+      "|+⟩",
+      "|−⟩",
+      "|+i⟩",
+      "|−i⟩"
+    ],
+
+    answer:2
+
+  }
+
+];
+
+
+const quiz=
+  document.getElementById("quiz");
+
+
+quizQuestions.forEach(
+  (item,index)=>{
+
+    const question=
+      document.createElement("div");
+
+    question.className=
+      "quiz-question";
+
+
+    question.innerHTML=`
+
+      <p>
+        ${index+1}. ${item.question}
+      </p>
+
+      ${
+        item.options.map(
+          (option,i)=>`
+
+            <label class="quiz-option">
+
+              <input
+                type="radio"
+                name="quiz${index}"
+                value="${i}"
+              >
+
+              ${option}
+
+            </label>
+
+          `
+        ).join("")
+      }
+
+    `;
+
+
+    quiz.appendChild(question);
+
+  }
+);
+
+
+quiz.insertAdjacentHTML(
+  "beforeend",
+
+  `
+
+    <button
+      class="btn primary"
+      onclick="checkQuiz()">
+      Submit Quiz
+    </button>
+
+    <span
+      id="quizResult"
+      class="quiz-result">
+    </span>
+
+  `
+
+);
+
+
+function checkQuiz(){
+
+  let score=0;
+
+
+  quizQuestions.forEach(
+    (question,index)=>{
+
+      const selected=
+        document.querySelector(
+          `input[name="quiz${index}"]:checked`
+        );
+
+
+      if(
+        selected &&
+        Number(selected.value)
+        ===question.answer
+      ){
+
+        score++;
+
+      }
+
+    }
+  );
+
+
+  const result=
+    document.getElementById(
+      "quizResult"
+    );
+
+
+  result.textContent=
+    `Score: ${score}/${quizQuestions.length}`;
+
+}
+
+
+/* =========================================================
+   CURSOR
+========================================================= */
+
+document.addEventListener(
+  "mousemove",
+  e=>{
+
+    document.getElementById(
+      "cursor"
+    ).style.left=
+      e.clientX+"px";
+
+    document.getElementById(
+      "cursor"
+    ).style.top=
+      e.clientY+"px";
+
+
+    document.getElementById(
+      "cursorDot"
+    ).style.left=
+      e.clientX+"px";
+
+    document.getElementById(
+      "cursorDot"
+    ).style.top=
+      e.clientY+"px";
+
+  }
+);
+
+</script>
+
+</body>
+</html>

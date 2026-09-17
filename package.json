@@ -1,0 +1,15 @@
+{
+  "name": "qubitlab",
+  "version": "1.0.0",
+  "description": "QubitLab Interactive Quantum Algorithm Learning Platform with Gemini AI Tutor",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

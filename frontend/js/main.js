@@ -1,0 +1,1 @@
+console.log("QubitLab frontend loaded successfully");
