@@ -224,11 +224,11 @@ while maintaining scientific accuracy.
         // --------------------------------------------------
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-3.5-flash-lite",
             contents: contents,
             config: {
                 systemInstruction: tutorInstruction,
-                temperature: 0.7,
+            
                 maxOutputTokens: 4096
             }
         });
