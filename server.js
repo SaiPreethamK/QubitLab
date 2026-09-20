@@ -1,28 +1,51 @@
 const express = require("express");
 const path = require("path");
+const cors = require("cors");
 require("dotenv").config();
 
 const { GoogleGenAI } = require("@google/genai");
 
 const app = express();
 
-// IMPORTANT FOR DEPLOYMENT
+// --------------------------------------------------
+// CORS
+// --------------------------------------------------
+
+// Allows the Netlify frontend to communicate with
+// the Render backend.
+app.use(cors());
+
+// --------------------------------------------------
+// PORT
+// --------------------------------------------------
+
 // Render provides its own PORT through process.env.PORT
 const PORT = process.env.PORT || 3000;
 
-// Check Gemini API key
+// --------------------------------------------------
+// CHECK GEMINI API KEY
+// --------------------------------------------------
+
 if (!process.env.GEMINI_API_KEY) {
     console.error("ERROR: GEMINI_API_KEY is missing.");
-    console.error("Please add GEMINI_API_KEY to your .env file locally.");
+    console.error(
+        "Please add GEMINI_API_KEY to your Render Environment Variables."
+    );
     process.exit(1);
 }
 
-// Initialize Gemini
+// --------------------------------------------------
+// INITIALIZE GEMINI
+// --------------------------------------------------
+
 const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY
 });
 
-// Middleware
+// --------------------------------------------------
+// MIDDLEWARE
+// --------------------------------------------------
+
 app.use(express.json({ limit: "1mb" }));
 
 // --------------------------------------------------
@@ -227,7 +250,7 @@ while maintaining scientific accuracy.
 
         res.status(500).json({
             error:
-                "Unable to connect to Gemini right now. Please check your API key, internet connection, and server terminal."
+                "Unable to connect to Gemini right now. Please check the Gemini API configuration and try again."
         });
     }
 });
@@ -247,8 +270,7 @@ app.get("/api/health", (req, res) => {
 // START SERVER
 // --------------------------------------------------
 
-// IMPORTANT FOR RENDER DEPLOYMENT
-// 0.0.0.0 allows the deployed server to receive external requests.
+// 0.0.0.0 allows Render to receive external requests.
 
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`QubitLab is running on port ${PORT}`);
